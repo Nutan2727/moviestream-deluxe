@@ -1,4 +1,4 @@
-import { TASTEDIVE_API_KEY, TASTEDIVE_BASE_URL } from "@/config/api";
+// TasteDive API service - proxied through backend function
 
 export interface Movie {
   Name: string;
@@ -17,21 +17,20 @@ export interface TasteDiveResponse {
 }
 
 export const fetchSimilarMovies = async (query: string): Promise<Movie[]> => {
-  const params = new URLSearchParams({
-    q: query,
-    type: "movie",
-    info: "1",
-    limit: "12",
-    k: TASTEDIVE_API_KEY,
-  });
-
   try {
-    const response = await fetch(`${TASTEDIVE_BASE_URL}?${params}`);
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const params = new URLSearchParams({ q: query });
+    const response = await fetch(
+      `https://${projectId}.supabase.co/functions/v1/tastedive-proxy?${params}`,
+      { headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` } }
+    );
+
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data: TasteDiveResponse = await response.json();
-    return data.Similar.Results;
+    const result: TasteDiveResponse = await response.json();
+    return result.Similar.Results;
   } catch (error) {
-    console.warn("TasteDive API error, using fallback data:", error);
+    console.warn("TasteDive proxy error, using fallback data:", error);
     return getFallbackMovies(query);
   }
 };
@@ -43,23 +42,7 @@ export const getMovieThumbnail = (movie: Movie): string => {
   return `https://picsum.photos/seed/${encodeURIComponent(movie.Name)}/300/450`;
 };
 
-// Fallback data when API is unavailable (CORS/no key)
-const fallbackMovieDB: Record<string, Movie[]> = {
-  default: [
-    { Name: "The Prestige", Type: "movie", yID: "o4gHRs8CS7Q" },
-    { Name: "Memento", Type: "movie", yID: "4CV41hoyS8A" },
-    { Name: "Shutter Island", Type: "movie", yID: "5iaYLCiq5DU" },
-    { Name: "The Departed", Type: "movie", yID: "iUFMmSEBmjg" },
-    { Name: "No Country for Old Men", Type: "movie", yID: "38A__WT3-o0" },
-    { Name: "There Will Be Blood", Type: "movie", yID: "FeSLPELpMeM" },
-    { Name: "Prisoners", Type: "movie", yID: "bpXfcTF6iVk" },
-    { Name: "Nightcrawler", Type: "movie", yID: "X8RhIm6GOEU" },
-    { Name: "Sicario", Type: "movie", yID: "G8tlEbvmvaU" },
-    { Name: "Wind River", Type: "movie", yID: "sMRcIOjdojU" },
-    { Name: "Hell or High Water", Type: "movie", yID: "JQoqsKoJVDw" },
-    { Name: "Whiplash", Type: "movie", yID: "7d_jQycdQGo" },
-  ],
-};
+// Fallback data when API is unavailable
 
 function getFallbackMovies(query: string): Movie[] {
   const hash = query.split("").reduce((a, b) => a + b.charCodeAt(0), 0);

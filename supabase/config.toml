@@ -1,1 +1,4 @@
 project_id = "ntcflnmhrrouaoigmsis"
+
+[functions.tastedive-proxy]
+verify_jwt = false
