@@ -1,12 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Navbar from "@/components/Navbar";
+import HeroBanner from "@/components/HeroBanner";
+import MovieRow from "@/components/MovieRow";
+import { MOVIE_CATEGORIES } from "@/config/api";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <HeroBanner />
+      <div className="-mt-24 relative z-10 pb-16">
+        {MOVIE_CATEGORIES.map((category) => (
+          <MovieRow
+            key={category.title}
+            title={category.title}
+            seed={category.seed}
+          />
+        ))}
       </div>
+      {/* Footer */}
+      <footer className="px-4 md:px-12 py-12 text-muted-foreground text-xs">
+        <p className="mb-4">Powered by TasteDive API</p>
+        <p>© 2026 MovieFlix. A Netflix-inspired movie discovery app.</p>
+      </footer>
     </div>
   );
 };
