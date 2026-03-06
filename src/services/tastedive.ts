@@ -27,8 +27,13 @@ export const fetchSimilarMovies = async (query: string): Promise<Movie[]> => {
     );
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const result: TasteDiveResponse = await response.json();
-    return result.Similar.Results;
+    const result = await response.json();
+    // Handle both uppercase (docs) and lowercase (actual API) keys
+    const similar = result.Similar || result.similar;
+    if (!similar) throw new Error('No similar data');
+    const movies = similar.Results || similar.results;
+    if (!movies || movies.length === 0) throw new Error('No results');
+    return movies as Movie[];
   } catch (error) {
     console.warn("TasteDive proxy error, using fallback data:", error);
     return getFallbackMovies(query);
