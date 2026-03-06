@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Search, Bell, ChevronDown } from "lucide-react";
+import { Search, Bell, ChevronDown, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = ["Home", "TV Shows", "Movies", "New & Popular", "My List"];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const { signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -36,10 +38,14 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         <Search className="w-5 h-5 text-foreground cursor-pointer hover:text-muted-foreground transition-colors" />
         <Bell className="w-5 h-5 text-foreground cursor-pointer hover:text-muted-foreground transition-colors hidden sm:block" />
-        <div className="flex items-center gap-1 cursor-pointer">
+        <button
+          onClick={signOut}
+          className="flex items-center gap-1 cursor-pointer text-foreground hover:text-muted-foreground transition-colors"
+          title="Sign Out"
+        >
           <div className="w-8 h-8 rounded bg-primary" />
-          <ChevronDown className="w-4 h-4 text-foreground" />
-        </div>
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </nav>
   );
